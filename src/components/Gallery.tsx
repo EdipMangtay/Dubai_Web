@@ -19,8 +19,7 @@ export default function Gallery() {
             <Reveal key={moment.title} delay={index * .08} className={`${moment.className} min-h-0`}>
               <Link href={moment.href} className="group image-frame block h-full text-ivory">
                 <Image src={moment.src} alt={moment.title} fill sizes="(max-width: 768px) 100vw, 60vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6 sm:p-8"><div><p className="text-[.6rem] font-bold uppercase tracking-[.17em] text-sand-light">{moment.meta}</p><h3 className="mt-2 font-serif text-2xl sm:text-3xl">{moment.title}</h3></div><span className="grid size-11 place-items-center border border-white/40 transition-colors duration-200 group-hover:bg-ivory group-hover:text-ink"><ArrowUpRight className="size-4" /></span></div>
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-end p-6 sm:p-8"><span className="grid size-11 place-items-center border border-white/40 transition-colors duration-200 group-hover:bg-ivory group-hover:text-ink"><ArrowUpRight className="size-4" /></span></div>
               </Link>
             </Reveal>
           ))}
