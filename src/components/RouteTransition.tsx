@@ -38,6 +38,7 @@ function supportsWebGL() {
   }
 }
 
+const INTRO_SEEN_KEY = 'travia-cinematic-intro-seen';
 let playedInDocument = false;
 
 export default function RouteTransition({ children }: { children: ReactNode }) {
@@ -48,7 +49,6 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [transitionId, setTransitionId] = useState(0);
   const [mode, setMode] = useState<'intro' | 'transition'>('intro');
-  const [lastPathname, setLastPathname] = useState(pathname);
   const [timing, setTiming] = useState<{
     duration: number;
     convergeStart: number;
@@ -67,7 +67,10 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
   const complete = useCallback(() => {
     setActive(false);
     setReady(false);
-    document.documentElement.removeAttribute('data-travia-intro');
+    if (typeof document !== 'undefined') {
+      document.documentElement.removeAttribute('data-travia-intro');
+      document.body.style.overflow = '';
+    }
   }, []);
 
   const markReady = useCallback(() => setReady(true), []);
@@ -145,6 +148,8 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
     }
   }, [timing, mode]);
 
+  const lastPathnameRef = useRef(pathname);
+
   // Initial intro and page transitions
   useEffect(() => {
     if (reduced || !supportsWebGL()) {
@@ -152,26 +157,55 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
       return;
     }
 
-    if (!playedInDocument) {
-      playedInDocument = true;
-      if (document.hidden || window.scrollY > window.innerHeight) {
+    const startIntro = (isReplay = false) => {
+      let hasSeen = playedInDocument;
+      try {
+        hasSeen = hasSeen || sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
+      } catch {
+        // Storage restricted
+      }
+
+      if (!isReplay && (hasSeen || window.scrollY > window.innerHeight)) {
         document.documentElement.removeAttribute('data-travia-intro');
         return;
       }
+
+      playedInDocument = true;
+      try {
+        sessionStorage.setItem(INTRO_SEEN_KEY, '1');
+      } catch {
+        // Storage failure fallback
+      }
+
       const t = window.innerWidth < 768 ? INTRO_TIMING.mobile : INTRO_TIMING.desktop;
-      setTiming(t);
-      setMode('intro');
-      setTransitionId(prev => prev + 1);
-      setActive(true);
-    } else if (pathname !== lastPathname) {
-      setLastPathname(pathname);
+      queueMicrotask(() => {
+        setTiming(t);
+        setMode('intro');
+        setTransitionId(prev => prev + 1);
+        setActive(true);
+        if (typeof document !== 'undefined') {
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    };
+
+    if (!playedInDocument) {
+      startIntro(false);
+    } else if (pathname !== lastPathnameRef.current) {
+      lastPathnameRef.current = pathname;
       if (pathname.includes('#') || window.location.hash) return;
-      setTiming(TRANSITION_TIMING);
-      setMode('transition');
-      setTransitionId(prev => prev + 1);
-      setActive(true);
+      queueMicrotask(() => {
+        setTiming(TRANSITION_TIMING);
+        setMode('transition');
+        setTransitionId(prev => prev + 1);
+        setActive(true);
+      });
     }
-  }, [pathname, reduced, lastPathname]);
+
+    const handleReplay = () => startIntro(true);
+    window.addEventListener('travia:replay-intro', handleReplay);
+    return () => window.removeEventListener('travia:replay-intro', handleReplay);
+  }, [pathname, reduced]);
 
   // Escape key skip
   useEffect(() => {
