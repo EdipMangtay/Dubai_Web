@@ -30,3 +30,4 @@ next-env.d.ts
 
 # QA files
 .qa-*
+node_modules
