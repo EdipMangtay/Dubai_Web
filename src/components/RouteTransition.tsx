@@ -85,13 +85,30 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
       const blackout = phase(time, timing.traceEnd - 0.35, timing.brandStart);
       element.style.setProperty('--intro-blackout', String(blackout));
 
-      // 3. TRAVIA DUBAI yazısı kararan ekranda parıldar
-      const brandIn = phase(time, timing.brandStart, timing.brandStart + 0.22);
-      const brandOut = 1 - phase(time, timing.brandEnd - 0.15, timing.brandEnd + 0.08);
+      // 3. TRAVIA DUBAI yazısı ve etrafındaki altın parlama / ışıltı
+      const brandIn = phase(time, timing.brandStart, timing.brandStart + 0.35);
+      const brandOut = 1 - phase(time, timing.brandEnd - 0.25, timing.brandEnd + 0.05);
       const brandAlpha = brandIn * brandOut;
       const brandY = (1 - brandIn) * 14;
       element.style.setProperty('--intro-brand-opacity', String(brandAlpha));
       element.style.setProperty('--intro-brand-y', `${brandY}px`);
+
+      // Altın aura (hale)
+      const auraScale = 0.85 + brandIn * 0.3;
+      element.style.setProperty('--intro-aura-opacity', String(brandAlpha * 1.0));
+      element.style.setProperty('--intro-aura-scale', String(auraScale));
+
+      // Işıltı çizgisi
+      const shimmerIn = phase(time, timing.brandStart + 0.1, timing.brandStart + 0.4);
+      const shimmerOut = 1 - phase(time, timing.brandEnd - 0.3, timing.brandEnd);
+      element.style.setProperty('--intro-shimmer-opacity', String(shimmerIn * shimmerOut));
+      element.style.setProperty('--intro-shimmer-scale', String(0.6 + shimmerIn * 0.45));
+
+      // Burj Khalifa zirvesindeki gibi yıldız pırıltısı
+      const glint = phase(time, timing.brandStart + 0.25, timing.brandStart + 0.55) *
+        (1 - phase(time, timing.brandStart + 0.55, timing.brandStart + 0.95));
+      element.style.setProperty('--intro-glint-opacity', String(glint));
+      element.style.setProperty('--intro-glint-scale', String(glint * 1.3));
 
       // 4. Siteye yumuşak geçiş
       const rootAlpha = 1 - phase(time, timing.brandEnd - 0.05, timing.duration);
@@ -116,6 +133,11 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
       const brandY = (1 - brandIn) * 10;
       element.style.setProperty('--intro-brand-opacity', String(brandAlpha));
       element.style.setProperty('--intro-brand-y', `${brandY}px`);
+      element.style.setProperty('--intro-aura-opacity', String(brandAlpha * 0.85));
+      element.style.setProperty('--intro-aura-scale', '1');
+      element.style.setProperty('--intro-shimmer-opacity', String(brandAlpha * 0.7));
+      element.style.setProperty('--intro-shimmer-scale', '1');
+      element.style.setProperty('--intro-glint-opacity', '0');
 
       // 4. Yeni sayfayı açma
       const rootAlpha = 1 - phase(time, timing.revealStart, timing.duration);
@@ -198,6 +220,9 @@ export default function RouteTransition({ children }: { children: ReactNode }) {
             />
           </IntroErrorBoundary>
           <div className="travia-intro__brand">
+            <div className="travia-intro__aura" />
+            <div className="travia-intro__sparkle-line" />
+            <div className="travia-intro__glint" />
             <div className="travia-intro__wordmark">TRAVIA</div>
             <span className="travia-intro__city">DUBAI</span>
           </div>
