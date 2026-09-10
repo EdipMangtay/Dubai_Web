@@ -8,11 +8,11 @@ const display = Cormorant_Garamond({ subsets: ["latin", "latin-ext"], variable: 
 const body = Manrope({ subsets: ["latin", "latin-ext"], variable: "--font-body", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://traviadubai.com"),
+  metadataBase: new URL("https://www.travia.com"),
   title: "Travia Dubai | Size Özel Dubai Deneyimleri",
   description: "Özel araç ve Türkçe rehberli Dubai turları, vize danışmanlığı, çöl safarisi ve yat deneyimleri.",
   keywords: ["Dubai tur", "Dubai vize", "VIP tur Dubai", "Dubai özel tur", "Travia Dubai"],
-  openGraph: { title: "Travia Dubai | Size Özel Dubai Deneyimleri", description: "Dubai'yi kendi ritminizde, size özel planlanan ayrıcalıklı deneyimlerle keşfedin.", url: "https://traviadubai.com", siteName: "Travia Dubai", locale: "tr_TR", type: "website", images: [{ url: "/images/hero-dubai-enhanced.jpg", width: 1376, height: 768, alt: "Dubai şehir silüeti" }] },
+  openGraph: { title: "Travia Dubai | Size Özel Dubai Deneyimleri", description: "Dubai'yi kendi ritminizde, size özel planlanan ayrıcalıklı deneyimlerle keşfedin.", url: "https://www.travia.com", siteName: "Travia Dubai", locale: "tr_TR", type: "website", images: [{ url: "/images/hero-dubai-enhanced.jpg", width: 1376, height: 768, alt: "Dubai şehir silüeti" }] },
   robots: { index: true, follow: true },
 };
 
