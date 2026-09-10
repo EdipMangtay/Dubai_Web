@@ -37,14 +37,14 @@ export const INTRO_TIMING = {
 } as const;
 
 export const TRANSITION_TIMING = {
-  duration: 1.4,
-  convergeStart: 0.1,
+  duration: 1.6,
+  convergeStart: 0.05,
   convergeEnd: 0.6,
   traceStart: 0.5,
-  traceEnd: 0.9,
-  brandStart: 0.7,
-  brandEnd: 1.1,
-  revealStart: 0.8,
-  cityStart: 0.9,
-  cityEnd: 1.4,
+  traceEnd: 0.95,
+  brandStart: 0.85,
+  brandEnd: 1.25,
+  revealStart: 1.15,
+  cityStart: 1.2,
+  cityEnd: 1.6,
 } as const;

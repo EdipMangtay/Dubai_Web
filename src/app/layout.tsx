@@ -25,7 +25,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="tr" className={`${display.variable} ${body.variable}`}>
+    <html suppressHydrationWarning lang="tr" className={`${display.variable} ${body.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(!location.hash&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-travia-intro','pending');setTimeout(function(){document.documentElement.removeAttribute('data-travia-intro')},4000)}}catch(e){}})();` }} />
+      </head>
       <body>
         <RouteTransition>
           {children}
