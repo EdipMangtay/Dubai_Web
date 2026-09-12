@@ -1,0 +1,72 @@
+[
+  {
+    "name": "dubai-downtown.webp",
+    "source": "https://unsplash.com/photos/WyfXOHgI49s",
+    "image": "https://images.unsplash.com/photo-1708361089093-beef4c4584e7",
+    "width": 2400,
+    "height": 1706,
+    "bytes": 585410
+  },
+  {
+    "name": "dubai-city.webp",
+    "source": "https://unsplash.com/photos/9n7rZJLWY7o",
+    "image": "https://images.unsplash.com/photo-1749273858638-ea678cb48e94?w=2000&q=80&fm=webp&fit=max",
+    "bytes": 115516
+  },
+  {
+    "name": "dubai-marina.webp",
+    "source": "https://unsplash.com/photos/fStLuGGrpGg",
+    "image": "https://images.unsplash.com/photo-1773393767558-97ba4dc319f4?w=2000&q=80&fm=webp&fit=max",
+    "bytes": 268040
+  },
+  {
+    "name": "dubai-yachts.webp",
+    "source": "https://unsplash.com/photos/RpMvnAq0b44",
+    "image": "https://images.unsplash.com/photo-1722502831583-b4e93ecc6027?w=2000&q=80&fm=webp&fit=max",
+    "bytes": 347270
+  },
+  {
+    "name": "dubai-desert.webp",
+    "source": "https://unsplash.com/photos/He6u_NevTpA",
+    "image": "https://images.unsplash.com/photo-1649590242138-2d56b3a48c5f?w=2000&q=80&fm=webp&fit=max",
+    "bytes": 56384
+  },
+  {
+    "name": "dubai-resort.webp",
+    "source": "https://unsplash.com/photos/2V1vdoYkSik",
+    "image": "https://images.unsplash.com/photo-1772090049995-6116febe0d60?w=2000&q=80&fm=webp&fit=max",
+    "bytes": 374170
+  },
+  {
+    "name": "dubai-architecture.webp",
+    "source": "https://unsplash.com/photos/YL97gF2M6hA",
+    "image": "https://images.unsplash.com/photo-1680401096763-245326bef84b?w=2000&q=80&fm=webp&fit=max",
+    "bytes": 98870
+  },
+  {
+    "name": "dubai-coast.webp",
+    "source": "https://unsplash.com/photos/aEiu9nilN_c",
+    "image": "https://images.unsplash.com/photo-1459600661907-3c72c54955de?w=2000&q=80&fm=webp&fit=max",
+    "bytes": 134278
+  },
+  {
+    "name": "burj-khalifa-night.webp",
+    "source": "https://unsplash.com/photos/burj-khalifa-skyscraper-at-night-with-palm-trees-Cokckb0OSeA",
+    "photographer": "Nejc Soklič",
+    "license": "https://unsplash.com/license",
+    "image": "https://images.unsplash.com/photo-1772090152168-1576b2930f14",
+    "width": 1800,
+    "height": 2400,
+    "bytes": 361130
+  },
+  {
+    "name": "burj-khalifa-night-mobile.webp",
+    "source": "https://unsplash.com/photos/burj-khalifa-skyscraper-at-night-with-palm-trees-Cokckb0OSeA",
+    "photographer": "Nejc Soklič",
+    "license": "https://unsplash.com/license",
+    "image": "https://images.unsplash.com/photo-1772090152168-1576b2930f14",
+    "width": 900,
+    "height": 1200,
+    "bytes": 91452
+  }
+]

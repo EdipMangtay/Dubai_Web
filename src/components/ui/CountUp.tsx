@@ -1,50 +1,28 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useInView, motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useEffect, useRef } from 'react';
+import { animate } from 'framer-motion';
+import { useMotionSettings } from '@/hooks/useMotionSettings';
+import { MOTION } from '@/lib/motion';
 
-interface CountUpProps {
-  value: number;
-  suffix?: string;
-  duration?: number;
-  className?: string;
-}
-
-export default function CountUp({ value, suffix = '', duration = 2, className = '' }: CountUpProps) {
+export default function CountUp({ value, suffix = '', className = '' }: { value: number; suffix?: string; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
-  const motionValue = useMotionValue(0);
-  const rounded = useTransform(motionValue, (latest) => Math.round(latest));
-  const [displayValue, setDisplayValue] = useState(0);
-
+  const { reduced, compact } = useMotionSettings();
   useEffect(() => {
-    if (isInView) {
-      const controls = animate(motionValue, value, {
-        duration,
-        ease: 'easeOut',
+    const element = ref.current;
+    if (!element || reduced) return;
+    let stop: (() => void) | undefined;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      const controls = animate(Math.round(value * .85), value, {
+        duration: MOTION.duration.reveal * (compact ? MOTION.mobileFactor : 1), ease: MOTION.ease,
+        onUpdate: current => { element.textContent = String(Math.round(current)); },
       });
-
-      const unsubscribe = rounded.on('change', (v) => {
-        setDisplayValue(v);
-      });
-
-      return () => {
-        controls.stop();
-        unsubscribe();
-      };
-    }
-  }, [isInView, value, duration, motionValue, rounded]);
-
-  return (
-    <motion.span
-      ref={ref}
-      className={className}
-      initial={{ opacity: 0, y: 20 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6 }}
-    >
-      {displayValue}
-      {suffix}
-    </motion.span>
-  );
+      stop = () => controls.stop();
+    }, { threshold: .5 });
+    observer.observe(element);
+    return () => { observer.disconnect(); stop?.(); element.textContent = String(value); };
+  }, [value, reduced, compact]);
+  return <span className={className} aria-label={`${value}${suffix}`}><span aria-hidden="true" className="stat-counter"><span className="invisible">{value}</span><span ref={ref} className="absolute inset-0">{value}</span></span><span aria-hidden="true">{suffix}</span></span>;
 }

@@ -1,18 +1,32 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Manrope } from "next/font/google";
+import localFont from "next/font/local";
 import { Toaster as TravelToaster } from "@/components/ui/sonner";
+import BrandIntro from "@/components/BrandIntro";
+import { INTRO_BOOTSTRAP } from "@/lib/intro";
 import RouteTransition from "@/components/RouteTransition";
 import "./globals.css";
 
-const display = Cormorant_Garamond({ subsets: ["latin", "latin-ext"], variable: "--font-display", display: "swap", weight: ["400", "500", "600"] });
-const body = Manrope({ subsets: ["latin", "latin-ext"], variable: "--font-body", display: "swap" });
+const display = localFont({
+  src: [
+    { path: './fonts/cormorant-normal-latin.woff2', weight: '300 700', style: 'normal' },
+    { path: './fonts/cormorant-italic-latin.woff2', weight: '300 700', style: 'italic' },
+  ], variable: '--font-display', display: 'swap', adjustFontFallback: false,
+});
+const displayExtended = localFont({
+  src: [
+    { path: './fonts/cormorant-normal-latin-ext.woff2', weight: '300 700', style: 'normal' },
+    { path: './fonts/cormorant-italic-latin-ext.woff2', weight: '300 700', style: 'italic' },
+  ], variable: '--font-display-ext', display: 'swap', adjustFontFallback: false,
+});
+const body = localFont({ src: './fonts/manrope-normal-latin.woff2', weight: '200 800', variable: '--font-body', display: 'swap', adjustFontFallback: false });
+const bodyExtended = localFont({ src: './fonts/manrope-normal-latin-ext.woff2', weight: '200 800', variable: '--font-body-ext', display: 'swap', adjustFontFallback: false });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.travia.com"),
-  title: "Travia Dubai | Size Özel Dubai Deneyimleri",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_WEBSITE_URL || "http://localhost:3000"),
+  title: "DUBAI | Size Özel Dubai Deneyimleri",
   description: "Özel araç ve Türkçe rehberli Dubai turları, vize danışmanlığı, çöl safarisi ve yat deneyimleri.",
-  keywords: ["Dubai tur", "Dubai vize", "VIP tur Dubai", "Dubai özel tur", "Travia Dubai"],
-  openGraph: { title: "Travia Dubai | Size Özel Dubai Deneyimleri", description: "Dubai'yi kendi ritminizde, size özel planlanan ayrıcalıklı deneyimlerle keşfedin.", url: "https://www.travia.com", siteName: "Travia Dubai", locale: "tr_TR", type: "website", images: [{ url: "/images/hero-dubai-enhanced.jpg", width: 1376, height: 768, alt: "Dubai şehir silüeti" }] },
+  keywords: ["Dubai tur", "Dubai vize", "VIP tur Dubai", "Dubai özel tur", "DUBAI"],
+  openGraph: { title: "DUBAI | Size Özel Dubai Deneyimleri", description: "Dubai'yi kendi ritminizde, size özel planlanan ayrıcalıklı deneyimlerle keşfedin.", siteName: "DUBAI", locale: "tr_TR", type: "website", images: [{ url: "/images/dubai-downtown.webp", width: 2400, height: 1706, alt: "Dubai şehir silüeti" }] },
   robots: { index: true, follow: true },
 };
 
@@ -25,11 +39,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html suppressHydrationWarning lang="tr" className={`${display.variable} ${body.variable}`}>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(!location.hash&&!matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-travia-intro','pending');setTimeout(function(){document.documentElement.removeAttribute('data-travia-intro')},4000)}}catch(e){}})();` }} />
-      </head>
+    <html suppressHydrationWarning lang="tr" className={`${display.variable} ${displayExtended.variable} ${body.variable} ${bodyExtended.variable}`}>
+      <head><script id="dubai-intro-gate" dangerouslySetInnerHTML={{ __html: INTRO_BOOTSTRAP }} /></head>
       <body>
+        <BrandIntro />
+        <a href="#main-content" className="skip-link">İçeriğe geç</a>
         <RouteTransition>
           {children}
         </RouteTransition>

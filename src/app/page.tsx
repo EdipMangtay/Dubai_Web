@@ -7,6 +7,7 @@ import TripPlannerWizard from '@/components/planner/TripPlannerWizard';
 import Process from '@/components/Process';
 import FAQ from '@/components/FAQ';
 import Gallery from '@/components/Gallery';
+import VisualInterlude from '@/components/VisualInterlude';
 import Contact from '@/components/Contact';
 import Footer from '@/components/Footer';
 import WhatsAppButton from '@/components/ui/WhatsAppButton';
@@ -17,15 +18,16 @@ export default function Home() {
     <div className="site-shell min-h-screen">
       <SmoothScroll />
       <Navbar />
-      <main>
+      <main id="main-content">
         <HeroSection />
         <BrandStats />
         <About />
+        <Gallery />
         <Services />
+        <VisualInterlude />
         <TripPlannerWizard />
         <Process />
         <FAQ />
-        <Gallery />
         <Contact />
       </main>
 

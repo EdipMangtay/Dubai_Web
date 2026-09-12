@@ -1,277 +1,90 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { useEffect, useState, useCallback, useRef, type ReactNode, Component } from 'react';
-import dynamic from 'next/dynamic';
-import { useReducedMotion } from '@/hooks/useReducedMotion';
-import { INTRO_TIMING, TRANSITION_TIMING } from '@/lib/motion';
+import { MotionConfig, motion } from 'framer-motion';
+import { usePathname, useRouter } from 'next/navigation';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { MOTION } from '@/lib/motion';
+import BurjMotif from './ui/BurjMotif';
 
-const ParticleScene = dynamic(() => import('./Hero/ParticleScene'), {
-  ssr: false,
-  loading: () => null,
-});
-
-function phase(time: number, start: number, end: number) {
-  const t = Math.max(0, Math.min(1, (time - start) / (end - start)));
-  return t * t * (3 - 2 * t);
-}
-
-class IntroErrorBoundary extends Component<{
-  children: ReactNode;
-  onFailure: () => void;
-}, { failed: boolean }> {
-  state = { failed: false };
-  static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch() { this.props.onFailure(); }
-  render() { return this.state.failed ? null : this.props.children; }
-}
-
-function supportsWebGL() {
-  try {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
-    if (!context) return false;
-    context.getExtension('WEBGL_lose_context')?.loseContext();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-const INTRO_SEEN_KEY = 'travia-cinematic-intro-seen';
-let playedInDocument = false;
+type Destination = { href: string; scroll?: boolean; replace?: boolean };
+type Phase = 'idle' | 'cover' | 'reveal';
+const NavigationContext = createContext<((destination: Destination) => void) | null>(null);
+export const useRouteNavigation = () => useContext(NavigationContext);
 
 export default function RouteTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const reduced = useReducedMotion();
+  const router = useRouter();
+  const ref = useRef<HTMLDivElement>(null);
+  const visited = useRef(new Set<string>());
+  const previous = useRef<string | null>(null);
+  const [phase, setPhase] = useState<Phase>('idle');
+  const phaseRef = useRef<Phase>('idle');
+  const pending = useRef<Destination | null>(null);
+  const committed = useRef(false);
+  const covered = useRef(false);
+  const timeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  const [active, setActive] = useState(false);
-  const [ready, setReady] = useState(false);
-  const [transitionId, setTransitionId] = useState(0);
-  const [mode, setMode] = useState<'intro' | 'transition'>('intro');
-  const [timing, setTiming] = useState<{
-    duration: number;
-    convergeStart: number;
-    convergeEnd: number;
-    traceStart: number;
-    traceEnd: number;
-    brandStart: number;
-    brandEnd: number;
-    revealStart: number;
-    cityStart: number;
-    cityEnd: number;
-  } | null>(null);
+  const changePhase = useCallback((next: Phase) => { phaseRef.current = next; setPhase(next); }, []);
+  const dispatchNavigation = useCallback(() => {
+    const destination = pending.current;
+    pending.current = null;
+    if (destination) router[destination.replace ? 'replace' : 'push'](destination.href, { scroll: destination.scroll });
+  }, [router]);
+  const begin = useCallback((destination: Destination | null) => {
+    clearTimeout(timeout.current);
+    pending.current = destination;
+    committed.current = false;
+    covered.current = false;
+    changePhase('cover');
+    // Release even if a route fails, is slow, or animation completion is interrupted.
+    timeout.current = setTimeout(() => {
+      dispatchNavigation();
+      changePhase('reveal');
+    }, 1400);
+  }, [changePhase, dispatchNavigation]);
+  const navigate = useCallback((destination: Destination) => begin(destination), [begin]);
 
-  const overlayRef = useRef<HTMLDivElement>(null);
-
-  const complete = useCallback(() => {
-    setActive(false);
-    setReady(false);
-    if (typeof document !== 'undefined') {
-      document.documentElement.removeAttribute('data-travia-intro');
-      document.body.style.overflow = '';
-    }
-  }, []);
-
-  const markReady = useCallback(() => setReady(true), []);
-
-  const progress = useCallback((time: number) => {
-    const element = overlayRef.current;
-    if (!element || !timing) return;
-
-    if (mode === 'intro') {
-      // 1. Veils
-      element.style.setProperty('--intro-lower', String(1 - phase(time, timing.revealStart, timing.cityEnd - 0.32)));
-      element.style.setProperty('--intro-upper', String(1 - phase(time, timing.revealStart + 0.16, timing.cityEnd - 0.12)));
-
-      // 2. Ekran kararması: Burj Khalifa tamamlanırken ekran kararır
-      const blackout = phase(time, timing.traceEnd - 0.35, timing.brandStart);
-      element.style.setProperty('--intro-blackout', String(blackout));
-
-      // 3. TRAVIA DUBAI yazısı ve etrafındaki altın parlama / ışıltı
-      const brandIn = phase(time, timing.brandStart, timing.brandStart + 0.35);
-      const brandOut = 1 - phase(time, timing.brandEnd - 0.25, timing.brandEnd + 0.05);
-      const brandAlpha = brandIn * brandOut;
-      const brandY = (1 - brandIn) * 14;
-      element.style.setProperty('--intro-brand-opacity', String(brandAlpha));
-      element.style.setProperty('--intro-brand-y', `${brandY}px`);
-
-      // Altın aura (hale)
-      const auraScale = 0.85 + brandIn * 0.3;
-      element.style.setProperty('--intro-aura-opacity', String(brandAlpha * 1.0));
-      element.style.setProperty('--intro-aura-scale', String(auraScale));
-
-      // Işıltı çizgisi
-      const shimmerIn = phase(time, timing.brandStart + 0.1, timing.brandStart + 0.4);
-      const shimmerOut = 1 - phase(time, timing.brandEnd - 0.3, timing.brandEnd);
-      element.style.setProperty('--intro-shimmer-opacity', String(shimmerIn * shimmerOut));
-      element.style.setProperty('--intro-shimmer-scale', String(0.6 + shimmerIn * 0.45));
-
-      // Burj Khalifa zirvesindeki gibi yıldız pırıltısı
-      const glint = phase(time, timing.brandStart + 0.25, timing.brandStart + 0.55) *
-        (1 - phase(time, timing.brandStart + 0.55, timing.brandStart + 0.95));
-      element.style.setProperty('--intro-glint-opacity', String(glint));
-      element.style.setProperty('--intro-glint-scale', String(glint * 1.3));
-
-      // 4. Siteye yumuşak geçiş
-      const rootAlpha = 1 - phase(time, timing.brandEnd - 0.05, timing.duration);
-      element.style.setProperty('--intro-root-opacity', String(rootAlpha));
-    } else {
-      // Sayfa geçiş modu (route transition)
-      // 1. Veils
-      const fadeIn = phase(time, 0, timing.convergeEnd * 0.4);
-      const fadeOut = 1 - phase(time, timing.revealStart, timing.duration);
-      const alpha = Math.max(fadeIn, fadeOut);
-      element.style.setProperty('--intro-lower', String(alpha));
-      element.style.setProperty('--intro-upper', String(alpha));
-
-      // 2. Kararma
-      const blackout = phase(time, timing.traceStart, timing.brandStart);
-      element.style.setProperty('--intro-blackout', String(blackout));
-
-      // 3. TRAVIA DUBAI yazısı
-      const brandIn = phase(time, timing.brandStart, timing.brandStart + 0.18);
-      const brandOut = 1 - phase(time, timing.brandEnd - 0.15, timing.brandEnd + 0.05);
-      const brandAlpha = brandIn * brandOut;
-      const brandY = (1 - brandIn) * 10;
-      element.style.setProperty('--intro-brand-opacity', String(brandAlpha));
-      element.style.setProperty('--intro-brand-y', `${brandY}px`);
-      element.style.setProperty('--intro-aura-opacity', String(brandAlpha * 0.85));
-      element.style.setProperty('--intro-aura-scale', '1');
-      element.style.setProperty('--intro-shimmer-opacity', String(brandAlpha * 0.7));
-      element.style.setProperty('--intro-shimmer-scale', '1');
-      element.style.setProperty('--intro-glint-opacity', '0');
-
-      // 4. Yeni sayfayı açma
-      const rootAlpha = 1 - phase(time, timing.revealStart, timing.duration);
-      element.style.setProperty('--intro-root-opacity', String(rootAlpha));
-    }
-  }, [timing, mode]);
-
-  const lastPathnameRef = useRef(pathname);
-
-  // Initial intro and page transitions
   useEffect(() => {
-    if (reduced || !supportsWebGL()) {
-      document.documentElement.removeAttribute('data-travia-intro');
-      return;
+    if (previous.current === pathname) return;
+    if (ref.current) ref.current.dataset.returning = String(visited.current.has(pathname));
+    visited.current.add(pathname);
+    previous.current = pathname;
+    if (phaseRef.current === 'cover') {
+      committed.current = true;
+      if (covered.current) queueMicrotask(() => changePhase('reveal'));
     }
+  }, [pathname, changePhase]);
 
-    const startIntro = (isReplay = false) => {
-      let hasSeen = playedInDocument;
-      try {
-        hasSeen = hasSeen || sessionStorage.getItem(INTRO_SEEN_KEY) === '1';
-      } catch {
-        // Storage restricted
-      }
-
-      if (!isReplay && (hasSeen || window.scrollY > window.innerHeight)) {
-        document.documentElement.removeAttribute('data-travia-intro');
-        return;
-      }
-
-      playedInDocument = true;
-      try {
-        sessionStorage.setItem(INTRO_SEEN_KEY, '1');
-      } catch {
-        // Storage failure fallback
-      }
-
-      const t = window.innerWidth < 768 ? INTRO_TIMING.mobile : INTRO_TIMING.desktop;
-      queueMicrotask(() => {
-        setTiming(t);
-        setMode('intro');
-        setTransitionId(prev => prev + 1);
-        setActive(true);
-        if (typeof document !== 'undefined') {
-          document.body.style.overflow = 'hidden';
-        }
-      });
-    };
-
-    if (!playedInDocument) {
-      startIntro(false);
-    } else if (pathname !== lastPathnameRef.current) {
-      lastPathnameRef.current = pathname;
-      if (pathname.includes('#') || window.location.hash) return;
-      queueMicrotask(() => {
-        setTiming(TRANSITION_TIMING);
-        setMode('transition');
-        setTransitionId(prev => prev + 1);
-        setActive(true);
-      });
-    }
-
-    const handleReplay = () => startIntro(true);
-    window.addEventListener('travia:replay-intro', handleReplay);
-    return () => window.removeEventListener('travia:replay-intro', handleReplay);
-  }, [pathname, reduced]);
-
-  // Escape key skip
   useEffect(() => {
-    if (!active) return;
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') complete();
+    const onPopState = () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || window.location.pathname === previous.current) return;
+      begin(null);
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [active, complete]);
-
-  // Failsafe timeout
-  useEffect(() => {
-    if (!active || !timing) return;
-    const failSafe = window.setTimeout(complete, ready ? (timing.duration + 0.8) * 1000 : 2500);
-    const hide = () => { if (document.hidden) complete(); };
-    document.addEventListener('visibilitychange', hide);
-    return () => {
-      window.clearTimeout(failSafe);
-      document.removeEventListener('visibilitychange', hide);
-    };
-  }, [active, ready, complete, timing]);
+    window.addEventListener('popstate', onPopState);
+    return () => { window.removeEventListener('popstate', onPopState); clearTimeout(timeout.current); };
+  }, [begin]);
 
   return (
-    <>
-      <div data-travia-page inert={active}>{children}</div>
-      {!reduced && active && timing && (
-        <div
-          ref={overlayRef}
-          className="travia-intro"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Travia Dubai"
-        >
-          <div className="travia-intro__veil travia-intro__veil--upper" />
-          <div className="travia-intro__veil travia-intro__veil--lower" />
-          <div className="travia-intro__blackout" />
-          <IntroErrorBoundary onFailure={complete}>
-            <ParticleScene
-              key={transitionId}
-              onReady={markReady}
-              onComplete={complete}
-              onFailure={complete}
-              onProgress={progress}
-              timing={timing}
-            />
-          </IntroErrorBoundary>
-          <div className="travia-intro__brand">
-            <div className="travia-intro__aura" />
-            <div className="travia-intro__sparkle-line" />
-            <div className="travia-intro__glint" />
-            <div className="travia-intro__wordmark">TRAVIA</div>
-            <span className="travia-intro__city">DUBAI</span>
-          </div>
-          {mode === 'intro' && (
-            <button
-              type="button"
-              onClick={complete}
-              className="travia-intro__skip"
-              aria-label="Geçişi atla"
-            >
-              Skip intro <span>↗</span>
-            </button>
-          )}
-        </div>
-      )}
-    </>
+    <NavigationContext.Provider value={navigate}>
+      <MotionConfig reducedMotion="user" transition={{ ease: MOTION.ease, duration: MOTION.duration.medium }}>
+        <div ref={ref} key={pathname} className="route-content">{children}</div>
+        {phase !== 'idle' && <motion.div className="route-curtain" aria-hidden="true" data-phase={phase}
+          initial={{ clipPath: 'inset(100% 0 0 0)' }}
+          animate={{ clipPath: phase === 'cover' ? 'inset(0% 0 0 0)' : 'inset(0% 0 100% 0)' }}
+          transition={{ duration: phase === 'cover' ? MOTION.route.cover : MOTION.route.reveal, ease: MOTION.ease }}
+          onAnimationComplete={() => {
+            if (phaseRef.current === 'cover') {
+              covered.current = true;
+              dispatchNavigation();
+              if (committed.current) changePhase('reveal');
+            } else {
+              clearTimeout(timeout.current);
+              changePhase('idle');
+            }
+          }}>
+          <div className="route-motif"><BurjMotif /><span>DUBAI</span></div>
+        </motion.div>}
+      </MotionConfig>
+    </NavigationContext.Provider>
   );
 }

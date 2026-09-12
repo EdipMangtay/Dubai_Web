@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const TRAVIA_TENANT_ID = 'a0000000-0000-0000-0000-000000000001';
+const DUBAI_TENANT_ID = 'a0000000-0000-0000-0000-000000000001';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-tenant-id': TRAVIA_TENANT_ID,
+          'x-tenant-id': DUBAI_TENANT_ID,
         },
         body: JSON.stringify({
           first_name: firstName,

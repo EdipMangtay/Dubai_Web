@@ -8,9 +8,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-<!-- BEGIN:TRAVIA-WEBSITE-UI -->
+<!-- BEGIN:DUBAI-WEBSITE-UI -->
 
-# TRAVIA Website UI Direction
+# DUBAI Website UI Direction
 
 The public website represents a premium Dubai luxury travel brand.
 
@@ -55,4 +55,4 @@ For substantial UI work:
 
 Prefer relevant ECC frontend design skills when useful.
 
-<!-- END:TRAVIA-WEBSITE-UI -->
+<!-- END:DUBAI-WEBSITE-UI -->

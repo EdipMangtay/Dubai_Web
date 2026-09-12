@@ -18,21 +18,18 @@ export const COLORS = {
 
 // ─── İletişim Bilgileri ─────────────────────────────────────
 export const CONTACT = {
-  phone: '+971 58 267 8228',
-  phoneRaw: '+971582678228',
-  email: 'info.traviadubai@gmail.com',
-  instagram: 'travia.dubai',
-  instagramUrl: 'https://www.instagram.com/travia.dubai/',
-  whatsappUrl: 'https://wa.me/971582678228',
+  phone: '000 000 00 00',
+  email: '',
+  contactHref: '/#contact-form',
   address: 'Dubai, Birleşik Arap Emirlikleri',
 } as const;
 
 // ─── Navigasyon ─────────────────────────────────────────────
 export const NAV_LINKS = [
   { label: 'Anasayfa', href: '#hero' },
-  { label: 'Hakkımızda', href: '#about' },
-  { label: 'Turlar', href: '#services' },
-  { label: 'Vize Hizmetleri', href: '#process' },
+  { label: 'Yaklaşımımız', href: '#about' },
+  { label: 'Deneyimler', href: '#gallery' },
+  { label: 'Hizmetler', href: '#services' },
   { label: 'İletişim', href: '#contact' },
 ] as const;
 
@@ -74,7 +71,7 @@ export const PROCESS_STEPS = [
   {
     step: 1,
     title: 'İletişim',
-    description: 'WhatsApp, telefon veya formumuzu kullanarak bize ulaşın. Hayalinizdeki Dubai deneyimini birlikte planlamaya başlayalım.',
+    description: 'İletişim formumuzu kullanarak bize ulaşın. Hayalinizdeki Dubai deneyimini birlikte planlamaya başlayalım.',
   },
   {
     step: 2,

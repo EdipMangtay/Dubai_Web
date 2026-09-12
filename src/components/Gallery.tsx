@@ -1,29 +1,30 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/ui/TransitionLink';
 import { ArrowUpRight } from 'lucide-react';
 import Reveal from './ui/Reveal';
+import TextLines from './ui/TextLines';
 
 const moments = [
-  { src: '/images/luxury-yacht.jpg', title: 'Marina’dan açık denize', meta: 'Özel yat · Gün batımı', href: '/experiences/yacht-sunset', className: 'md:col-span-7 md:row-span-2' },
-  { src: '/images/desert-safari.jpg', title: 'Kızıl kumlarda sessizlik', meta: 'Lahbab · Özel Majlis', href: '/experiences/desert-safari', className: 'md:col-span-5' },
-  { src: '/images/hero-skyline.jpg', title: 'Şehrin ışıkları üstünden', meta: 'Downtown · Gece', href: '/experiences/helicopter-tour', className: 'md:col-span-5' },
+  { src: '/images/dubai-city.webp', title: 'Şehrin üzerinde.', category: 'CITY', meta: 'Panoramik şehir turu', href: '/experiences/helicopter-tour', alt: 'Gün batımı ışığında Burj Khalifa ve Downtown Dubai', copy: 'İkonik mimariyi ve hiç görmediğiniz ufukları farklı bir açıdan keşfedin.' },
+  { src: '/images/dubai-desert.webp', title: 'Zamanın dışında.', category: 'DESERT', meta: 'Özel çöl deneyimi', href: '/experiences/desert-safari', alt: 'Güneşin sıcak ışıklarıyla aydınlanan kızıl kum tepeleri', copy: 'Şehrin sesini geride bırakın. Kumların üzerinde yalnızca size ait bir gün batımı.' },
+  { src: '/images/dubai-marina.webp', title: 'Mavinin içinde.', category: 'COAST', meta: 'Özel yat seyri', href: '/experiences/yacht-sunset', alt: 'Dubai Marina silüeti önünde seyreden yatlar', copy: 'Marina’dan açık denize uzanan, rotasını sizin belirlediğiniz bir yolculuk.' },
 ];
 
 export default function Gallery() {
   return (
-    <section id="gallery" className="paper-section section-space" aria-labelledby="gallery-title">
+    <section id="gallery" className="paper-section section-space border-t border-[#0b1513]/15" aria-labelledby="gallery-title">
       <div className="container-wide">
-        <Reveal className="flex flex-col gap-7 border-b border-[#0b1513]/18 pb-9 md:flex-row md:items-end md:justify-between"><div><p className="eyebrow">03 · Signature moments</p><h2 id="gallery-title" className="display title-lg mt-7">Bir başka<br /><em className="text-[#80673f]">Dubai.</em></h2></div><p className="max-w-sm text-sm leading-7 text-[#0b1513]/62">Şehrin ihtişamından çölün sessizliğine uzanan, yalnızca size ait anlar.</p></Reveal>
-        <div className="mt-8 grid auto-rows-[19rem] gap-4 md:grid-cols-12 md:auto-rows-[21rem]">
+        <Reveal variant="editorial" className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between">
+          <div><p className="eyebrow">02 · Üç atmosfer, tek Dubai</p><h2 id="gallery-title" className="display title-lg mt-7"><TextLines lines={['Sizi hangi', <em key="second" className="text-[#80673f]">Dubai çağırıyor?</em>]} /></h2></div>
+          <p className="max-w-xs text-sm leading-7 text-[#0b1513]/65">Şehrin heyecanı, çölün dinginliği ya da denizin özgürlüğü. Yolculuğunuzun ilk sayfasını seçin.</p>
+        </Reveal>
+        <div className="experience-grid">
           {moments.map((moment, index) => (
-            <Reveal key={moment.title} delay={index * .08} className={`${moment.className} min-h-0`}>
-              <Link href={moment.href} className="group image-frame block h-full text-ivory">
-                <Image src={moment.src} alt={moment.title} fill sizes="(max-width: 768px) 100vw, 60vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035]" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-6 sm:p-8">
-                  <p className="text-[.65rem] font-bold uppercase tracking-[.18em] text-sand-light">{moment.meta}</p>
-                  <span className="grid size-11 place-items-center border border-white/40 transition-colors duration-200 group-hover:bg-ivory group-hover:text-ink"><ArrowUpRight className="size-4" /></span>
-                </div>
+            <Reveal variant="editorial" key={moment.category} delay={index * .08}>
+              <Link href={moment.href} className="experience-link group">
+                <div className="image-frame image-mask experience-image"><Image src={moment.src} alt={moment.alt} fill sizes="(max-width: 767px) 100vw, 35vw" className="object-cover" /><span className="experience-arrow"><ArrowUpRight className="size-4" /></span></div>
+                <div className="experience-meta"><span>0{index + 1} / {moment.category}</span><span>{moment.meta}</span></div>
+                <h3><TextLines lines={[moment.title]} /></h3><p>{moment.copy}</p>
               </Link>
             </Reveal>
           ))}

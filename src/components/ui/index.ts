@@ -1,5 +1,5 @@
 /**
- * TRAVELOS / TRAVIA — Website UI barrel
+ * TRAVELOS / DUBAI — Website UI barrel
  */
 
 export { Toaster } from './sonner';

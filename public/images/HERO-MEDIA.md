@@ -1,14 +1,14 @@
-# Homepage hero source
+# DUBAI photography
 
-The available fallback, `hero-dubai-enhanced.jpg`, is 1376 × 768. It is not a 4K master.
+The website uses locally hosted WebP photographs. Sources and original image URLs are recorded in `SOURCES.json` under the Unsplash License: https://unsplash.com/license.
 
-Supply one genuine, licensed, sharply focused source at:
+- `dubai-downtown.webp`: opening Downtown view.
+- `dubai-city.webp`: City editorial portrait.
+- `dubai-desert.webp`: Desert experience.
+- `dubai-marina.webp`: Coast and yacht experience.
+- `dubai-resort.webp`: Jumeirah introduction.
+- `dubai-yachts.webp`: Marina and city services.
+- `dubai-architecture.webp`: Museum of the Future architectural detail.
+- `dubai-coast.webp`: aerial visual interlude and helicopter experience.
 
-- `apps/website/public/images/travia-dubai-hero-4k.webp` (preferred), or
-- `apps/website/public/images/travia-dubai-hero-4k.jpg`.
-
-Use at least 3840 × 2160 pixels, sRGB, approximately 16:9. Preserve the existing Downtown Dubai viewpoint: Burj near the horizontal center, pinnacle near the upper edge with some breathing room, skyline and water reflections below. Keep fine facade detail and natural highlights; do not upscale or add sharpening halos. The mobile crop selects 55% horizontally, tablet 52%, desktop 50%.
-
-Restart development or rebuild production after adding the asset. The Next configuration selects WebP first, then JPEG, otherwise the existing fallback. The first HTML render uses the selected source; no placeholder request or client-side asset discovery delays loading. A failed replacement request falls back to the existing image.
-
-Next Image delivers responsive WebP at quality 85, with eager/high-priority loading. The height-aware `sizes` value preserves source detail in portrait cover crops. Other site images retain their default quality 75. Inspect desktop and mobile framing after replacing the source; the intro's existing skyline landmarks assume this composition.
+Images are photographic illustrations of destinations, not representations of a specific reserved vehicle, room, or yacht. Next Image supplies responsive sizes. Only the opening hero image is preloaded; section photographs load lazily.

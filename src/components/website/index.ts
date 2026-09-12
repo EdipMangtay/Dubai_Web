@@ -1,5 +1,5 @@
 /**
- * TRAVIA WEBSITE — Modular Component Exports
+ * DUBAI WEBSITE — Modular Component Exports
  * Public landing page sections, interactive UI, and planning widgets
  */
 
@@ -7,7 +7,6 @@
 export { default as Navbar } from '../Navbar';
 export { default as HeroSection } from '../Hero/HeroSection';
 export { default as HeroContent } from '../Hero/HeroContent';
-export { default as ParticleScene } from '../Hero/ParticleScene';
 export { default as BrandStats } from '../BrandStats';
 export { default as About } from '../About';
 export { default as Services } from '../Services';

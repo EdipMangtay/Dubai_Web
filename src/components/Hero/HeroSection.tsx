@@ -1,55 +1,73 @@
 'use client';
 
 import Image from 'next/image';
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import Link from '@/components/ui/TransitionLink';
+import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
+import { ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { useMotionSettings } from '@/hooks/useMotionSettings';
+import { MOTION } from '@/lib/motion';
 import HeroContent from './HeroContent';
 
-const HERO_SRC = process.env.NEXT_PUBLIC_TRAVIA_HERO_IMAGE ?? '/images/travia-hero-v3.jpg';
-const HERO_FALLBACK = '/images/travia-hero-v3.jpg';
+const scenes = [
+  { category: 'CITY', label: 'Şehrin ritmi', location: 'Downtown Dubai', src: '/images/burj-khalifa-night.webp', alt: 'Gece ışıkları ve palmiyeler arasında aşağıdan görülen Burj Khalifa', position: 'center 28%', href: '/experiences/helicopter-tour' },
+  { category: 'DESERT', label: 'Çölün sessizliği', location: 'Arabian Desert', src: '/images/dubai-desert.webp', alt: 'Arabistan çölünde sıcak ışıklarla aydınlanan kızıl kum tepeleri', position: 'center 64%', href: '/experiences/desert-safari' },
+  { category: 'COAST', label: 'Denizin özgürlüğü', location: 'Jumeirah Coast', src: '/images/dubai-coast.webp', alt: 'Dubai kıyılarının turkuaz denizi ve Burj Al Arab', position: 'center', href: '/experiences/yacht-sunset' },
+];
 
 export default function HeroSection() {
-  const heroRef = useRef<HTMLElement>(null);
-  const [heroImage, setHeroImage] = useState(HERO_SRC);
-  const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start'],
-  });
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '2%']);
-  const atmosphereY = useTransform(scrollYProgress, [0, 1], ['0%', reduced ? '0%' : '2.5%']);
-  const atmosphereOpacity = useTransform(scrollYProgress, [0, 0.7], [1, reduced ? 1 : 0.45]);
-
+  const ref = useRef<HTMLElement>(null);
+  const [active, setActive] = useState(0);
+  const [displayed, setDisplayed] = useState(0);
+  const [hasChanged, setHasChanged] = useState(false);
+  const { reduced, compact, duration } = useMotionSettings();
+  const loaded = useRef(new Set<number>());
+  const selectScene = (index: number) => { setHasChanged(true); setActive(index); if (loaded.current.has(index)) setDisplayed(index); };
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
+  const y = useTransform(scrollYProgress, [0, 1], [0, MOTION.distance.parallax]);
+  const scene = scenes[displayed];
   return (
-    <section ref={heroRef} id="hero" className="relative h-[100svh] min-h-[720px] overflow-hidden bg-canvas" aria-labelledby="hero-title">
-      {/* Hero image — no resting scale to preserve pixel-level sharpness */}
-      <motion.div className="absolute inset-0" style={{ y: imageY }}>
-        <Image
-          src={heroImage}
-          alt="Akşam ışıklarında Downtown Dubai ve Burj Khalifa"
-          fill
-          loading="eager"
-          fetchPriority="high"
-          quality={85}
-          sizes="(min-width: 2560px) 2560px, (min-width: 1920px) 1920px, (min-width: 1280px) 1440px, 100vw"
-          onError={() => setHeroImage(HERO_FALLBACK)}
-          className="object-cover object-[55%_center] md:object-[52%_center] lg:object-center"
-        />
+    <section ref={ref} id="hero" className="hero-section" aria-labelledby="hero-title">
+      <motion.div className="hero-media" style={{ y: reduced || compact ? 0 : y }}>
+        <AnimatePresence initial={false}>
+          {scenes.map((item, index) => (index === active || index === displayed) && (
+            <motion.div key={item.src} className="hero-scene-media absolute inset-0" aria-hidden={index !== displayed}
+              initial={{ opacity: 0, scale: reduced ? 1 : MOTION.scale.scene }}
+              animate={{ opacity: index === displayed ? 1 : 0, scale: index === displayed || reduced ? 1 : MOTION.scale.scene }}
+              exit={{ opacity: 0, scale: reduced ? 1 : MOTION.scale.exit }}
+              transition={{ duration: duration('hero'), ease: MOTION.ease }}>
+              <picture className="absolute inset-0">{index === 0 && <source media="(max-width: 767px)" srcSet="/images/burj-khalifa-night-mobile.webp" />}<Image src={item.src} alt={item.alt} fill sizes="100vw" quality={85}
+                unoptimized={index === 0} fetchPriority={index === 0 ? 'high' : undefined} loading="eager"
+                onLoad={() => { loaded.current.add(index); if (index === active) setDisplayed(index); }}
+                className={`object-cover ${index === 0 ? 'hero-city-image' : ''} ${index === 0 && !hasChanged ? 'hero-initial-image' : ''}`} style={index === 0 ? undefined : { objectPosition: item.position }} /></picture>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </motion.div>
-
-      {/* Cinematic gradient overlays for text readability */}
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(3,10,9,.22)_0%,rgba(3,10,9,.06)_34%,rgba(3,10,9,.28)_62%,rgba(3,10,9,.78)_100%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(3,10,9,.36)_0%,rgba(3,10,9,.12)_65%,transparent_100%)] md:bg-[linear-gradient(90deg,rgba(3,10,9,.78)_0%,rgba(3,10,9,.58)_30%,rgba(3,10,9,.2)_58%,rgba(3,10,9,.05)_100%)]" />
-
-      {/* Subtle atmosphere glow — restored for visual depth */}
-      <motion.div
-        className="absolute inset-[-4%] hidden bg-[radial-gradient(ellipse_62%_27%_at_58%_61%,rgba(244,240,231,.035)_0%,transparent_72%)] md:block"
-        style={{ y: atmosphereY, opacity: atmosphereOpacity }}
-        aria-hidden="true"
-      />
-
-      <div className="absolute inset-y-0 left-[calc(var(--gutter)+2px)] hidden w-px bg-white/15 md:block" aria-hidden="true" />
+      <div className="hero-shade" />
+      <motion.div className="hero-tone" aria-hidden="true" initial={false}
+        animate={{ backgroundColor: ['rgba(22,42,58,0)', 'rgba(98,55,22,.15)', 'rgba(5,70,75,.12)'][displayed] }}
+        transition={{ duration: duration('hero'), ease: MOTION.ease }} />
+      <div className="hero-unveil" aria-hidden="true" />
+      <div className="hero-topline container-wide" aria-hidden="true"><span>PRIVATE TRAVEL, PERSONALLY CURATED</span><span>25°12′ N &nbsp; 55°16′ E</span></div>
       <HeroContent />
+      <div className="hero-bottom container-wide">
+        <div className="hero-scenes" style={{ '--scene-index': displayed } as React.CSSProperties} role="group" aria-label="Dubai manzarası seçin">
+          <span className="hero-scene-indicator" aria-hidden="true" />
+          {scenes.map((item, index) => (
+            <button key={item.label} type="button" onClick={() => selectScene(index)} aria-pressed={displayed === index} aria-busy={active === index && displayed !== index}
+              className={`hero-scene ${displayed === index ? 'is-active' : ''}`}>
+              <span className="hero-scene-number">0{index + 1} / {item.category}</span>
+              <span>{item.label}</span><ArrowDownRight className="size-4" aria-hidden="true" />
+            </button>
+          ))}
+        </div>
+        <Link href={scene.href} className="hero-location" aria-live="polite">
+          <span><small>Şu an keşfettiğiniz</small><span className="scene-location-mask"><AnimatePresence initial={false} mode="popLayout"><motion.span key={scene.location}
+            initial={{ opacity: 0, y: reduced ? 0 : '110%' }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduced ? 0 : '-110%' }}
+            transition={{ duration: duration('reveal'), ease: MOTION.ease }}>{scene.location}</motion.span></AnimatePresence></span></span><ArrowUpRight className="size-4" />
+        </Link>
+      </div>
     </section>
   );
 }
