@@ -12,7 +12,7 @@ The existing DUBAI typography, photography, routes and responsive composition ar
 - Contact and planner: focus feedback, loading state, animated success/error feedback, step transitions and progress. Request payloads and pricing calculations are unchanged.
 - Experience routes: image mask, naturally wrapping word reveals, metadata and itinerary entrances, booking panel reveal.
 
-The 500+ guest statistic counts up once in a fixed-width span. Service durations and availability figures remain static. No custom cursor or continuous decorative particle animation is mounted. The opening canvas runs once and releases its frame loop and backing buffer after the sequence.
+The 500+ guest statistic counts up once in a fixed-width span. Service durations and availability figures remain static. No custom cursor or continuous decorative particle animation is mounted. The opening canvas runs only during each document’s entrance and releases its frame loop and backing buffer after the sequence.
 
 ## Verification
 
@@ -23,25 +23,29 @@ The production browser run passed 92 checks at 1440, 1280, 1024, 768, 430 and 39
 Browser checks and screenshots are in `artifacts/motion-qa/`. Form checks intercept the request locally and do not contact the CRM. Frame timings describe the local browser session, not a guarantee for every device.
 
 
-## Cinematic opening
+## Architectural opening
 
-The existing layout is retained. `BrandIntro.tsx`, `BurjMotif.tsx` and the pre-paint gate in `src/lib/intro.ts` provide a 2.6 second opening (2.8 second absolute release limit):
+The existing layout, local fonts, optimized photography and conversion flows are retained. `BrandIntro.tsx` and the pre-paint gate in `src/lib/intro.ts` share the timeline in `src/lib/motion.ts`. The short internal-route motif remains separate.
 
-- 0–200 ms: near-black frame.
-- 200–1,400 ms: a seeded canvas field gathers into a slender architectural axis. Desktop uses 108 lights; touch/mobile uses 48. Low core count, data saving or consistently slow frames reduces this to 32. DPR is capped at 2 on desktop and 1.5 on mobile.
-- 650–1,900 ms: a thin Burj outline resolves into an upward photographic mask; the image settles from 1.08 to 1.
-- 1,400 ms: individual DUBAI letters rise 18 px and settle from wider spacing, using transforms instead of layout animation.
-- 1,700–2,300 ms: the lights drift gently out and fade.
-- 1,550–2,750 ms: the header, heading, description and CTA unfold as the opening blends into the same photograph and crop used by the City hero.
+The full opening is 5.1 seconds on desktop and 4.49 seconds on touch/mobile (12% shorter). Hero content finishes its stagger immediately after the overlay releases. A 5.4 second desktop / 4.75 second mobile absolute timer prevents an unavailable asset or delayed hydration from holding the page.
 
-The animation does not wait on image decoding or hydration. Wheel, touch movement, a key press or the small explore control releases it immediately. Reduced motion and direct section links bypass it. Missing images, slow requests and unavailable storage cannot trap the visitor behind the opening. At completion the RAF, temporary listeners and timers are removed and the canvas buffer is reduced to 1×1.
+- 0–420 ms: midnight atmosphere with a faint trace of the same photograph.
+- 420–1,350 ms: distant lights emerge at different depths. Two small cached canvas sprites provide soft focus without per-frame blur.
+- 1,000–2,430 ms: most lights approach the architectural axis; a small distant group stays nearly still and fades. Seeded delays, drift and acceleration vary their trajectories.
+- 950–2,450 ms: one vertical hairline traces the building’s axis.
+- 1,250–2,900 ms: a vertical slit grows upward, then opens into a narrow photographic aperture around Burj Khalifa. Its camera settles from scale 1.055 and 8 px vertical offset.
+- 2,550–2,850 ms: one restrained 300 ms highlight marks the spire, projected through the responsive photograph crop.
+- 2,600–3,200 ms: centered DUBAI letters rise 16 px and settle from wider tracking. The complete wordmark holds until 4,100 ms, with a fine signature rule beneath it.
+- 2,900–3,500 ms: the portrait aperture holds with a fine edge, while the photograph settles.
+- 3,200–4,200 ms: lights disperse and fade; the canvas frame loop and backing buffers are released.
+- 3,500–4,300 ms: the aperture opens to the exact full-screen hero crop, and the edge vignette disappears.
+- 4,150–5,220 ms: the same image blends into the hero as the navbar, eyebrow, headline, subtitle, CTA and secondary UI unfold.
 
-The first full opening is saved once per tab in `sessionStorage`. Internal routes and refreshes do not repeat it. To replay during development, run this in the site's browser console:
+Desktop uses 96 lights; touch/mobile uses 40. Low core count, data saving or consistently slow frames reduces this to 32. DPR is capped at 2 on desktop and 1.5 on touch/mobile. No sound, extra animation library, WebGL or persistent decorative particle loop is added.
 
-```js
-sessionStorage.removeItem('dubai:intro-seen:v1');
-location.pathname === '/' && !location.hash ? location.reload() : location.assign('/');
-```
+Reduced motion receives a 1.25 second photograph/wordmark fade, with no canvas, aperture, attraction or camera movement. Wheel, touch movement, a key press, the explore control, orientation change, a hidden document or removal of the canvas releases the full opening immediately. Scroll remains under the visitor's control. Temporary listeners, timers, sprites and RAF are cleaned up; image loading and storage availability never gate the release.
+
+The opening replays on **every full document load and refresh**, including URLs with a section hash. It does not read or write an intro session flag; flags left by previous versions cannot suppress the opening. Native scroll restoration and section hashes are preserved. Internal SPA navigation and history changes retain the existing short route motif and do not replay the full opening. No-JavaScript visitors see the page directly.
 
 ## Route motif and contact behavior
 
@@ -55,6 +59,4 @@ All published phone labels and phone field examples are `000 000 00 00`, central
 
 Real Burj Khalifa photography by [Nejc Soklič on Unsplash](https://unsplash.com/photos/burj-khalifa-skyscraper-at-night-with-palm-trees-Cokckb0OSeA), available under the Unsplash license. Local WebP files are 1,800×2,400 (361 KB) and 900×1,200 (91 KB). Source attribution is recorded in `public/images/SOURCES.json`.
 
-The intro browser run passed 73 checks across the six target widths. It verified star convergence/count, responsive matching crops, approximately 2.6–2.7 second completion, buffer cleanup, refresh and history behavior, contact draft transfer and fallback behavior. Results and sequence frames are in `artifacts/intro-qa/`. Runtime/hydration errors, failed asset requests and horizontal overflow were zero in normal browser runs; image failures were intentionally simulated only in the fallback test.
-
-Nine final polish checks also passed: short portrait/landscape crops, a 4× CPU slowdown with 32 lights, and a measured 527 ms route transition. See `artifacts/intro-qa/final-polish.json`.
+The previous site-wide production run passed 92 checks; those results describe the preserved page and contact flows. Current opening reports and sequence frames are generated locally in `artifacts/luxury-intro-qa/` (ignored by Git).

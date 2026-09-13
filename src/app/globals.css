@@ -364,42 +364,60 @@ label:focus-within > .field-label, #trip-planner label:focus-within > span:first
 @media (prefers-reduced-motion: reduce) { .experience-hero .text-mask-inner { transform: none !important; } }
 .stat-counter { position: relative; display: inline-block; font-variant-numeric: tabular-nums; }
 
-/* One opening per tab. The photograph keeps exactly the hero's crop at handoff. */
-.brand-intro { display: none; position: fixed; inset: 0; z-index: 150; overflow: hidden; background: #050c0c; color: var(--text); }
+/* Architectural opening on every document load; the final crop matches the hero. */
+.brand-intro { --intro-aperture: clamp(150px,15vw,250px); display: none; position: fixed; inset: 0; z-index: 150; overflow: hidden; background: #050b11; color: var(--text); }
 html[data-intro='pending'] .brand-intro, html[data-intro='playing'] .brand-intro { display: block; }
-html[data-intro='playing'] .brand-intro { animation: intro-depart var(--intro-duration) linear both; }
-.intro-image-mask { position: absolute; top: 0; left: 0; right: 0; height: clamp(740px,100svh,1200px); clip-path: inset(100% 0 0); }
-.intro-image { position: absolute; inset: -24px 0; background: #050c0c url('/images/burj-khalifa-night.webp') center 28% / cover no-repeat; transform: scale(1.08); }
+html[data-intro='playing'] .brand-intro { animation: intro-depart calc(var(--intro-duration) * var(--intro-tempo, 1)) linear both; }
+.intro-atmosphere { position: absolute; top: -24px; left: 0; right: 0; height: calc(clamp(740px,100svh,1200px) + 48px); background: url('/images/burj-khalifa-night.webp') center 28% / cover no-repeat; opacity: .04; }
+html[data-intro='playing'] .intro-atmosphere { animation: intro-atmosphere-in calc(1.6s * var(--intro-tempo, 1)) var(--ease-out) both; }
+@keyframes intro-atmosphere-in { from { opacity: .012; } to { opacity: .055; } }
+.intro-image-mask { position: absolute; top: 0; left: 0; right: 0; height: clamp(740px,100svh,1200px); clip-path: inset(92% calc(100% - var(--burj-x,55.3%)) 8% var(--burj-x,55.3%)); }
+.intro-image { position: absolute; inset: -24px 0; background: #050c0c url('/images/burj-khalifa-night.webp') center 28% / cover no-repeat; transform: translateY(8px) scale(1.055); }
 .hero-city-image { object-position: center 28%; }
 .intro-shade { position: absolute; inset: 0; height: clamp(740px,100svh,1200px); background: linear-gradient(180deg,rgba(6,15,17,.34),transparent 32%,rgba(6,15,17,.24) 60%,rgba(6,15,17,.84)),linear-gradient(90deg,rgba(6,15,17,.55),rgba(6,15,17,.06) 78%); }
 .intro-lights { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-.intro-burj-edge { position: absolute; top: 31%; left: 55.3%; width: 9%; height: 52%; transform: translateX(-50%); opacity: 0; color: #d6d9d3; }
-.intro-burj-edge path { stroke-dasharray: 600; stroke-dashoffset: 600; }
-.intro-bottom { position: absolute; left: var(--gutter); right: var(--gutter); bottom: clamp(36px,7vh,80px); display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+.intro-trace { position: absolute; top: var(--burj-y,31%); left: var(--burj-x,55.3%); width: 1px; height: var(--burj-height,52%); background: linear-gradient(transparent,rgba(237,233,222,.5) 15%,rgba(237,233,222,.08)); transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+.intro-aperture-guide { position: absolute; top: 8%; bottom: 8%; left: calc(var(--burj-x,55.3%) - var(--intro-aperture)); width: calc(var(--intro-aperture) * 2); border: 1px solid rgba(228,226,215,.16); pointer-events: none; opacity: 0; }
+.intro-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 55% 40%,transparent 26%,rgba(3,8,11,.46) 100%); }
+.intro-bottom { position: absolute; left: 50%; bottom: clamp(108px,16vh,190px); display: flex; flex-direction: column; align-items: center; gap: 24px; transform: translateX(-50%); width: max-content; max-width: calc(100% - var(--gutter) * 2); }
 .intro-wordmark-mask { overflow: hidden; padding: 24px; margin: -24px; }
-.intro-wordmark { display: flex; font-family: var(--font-serif); font-size: clamp(5rem,11.5vw,12rem); font-weight: 400; letter-spacing: .28em; line-height: .95; }
-.intro-wordmark > span { display: block; opacity: 0; transform: translate(calc(var(--letter-offset) * 12px),18px); }
-.intro-skip { display: inline-flex; align-items: center; gap: 28px; min-height: 48px; padding-block: 14px; margin-bottom: 8px; border: 0; border-bottom: 1px solid rgba(244,240,231,.4); background: transparent; font-size: .6rem; letter-spacing: .15em; text-transform: uppercase; opacity: 0; }
-html[data-intro='playing'] .intro-image-mask { animation: intro-rise 1.05s var(--ease-out) .85s both; }
-html[data-intro='playing'] .intro-image { animation: intro-image-arrive 1.65s var(--ease-out) .65s both; }
-html[data-intro='playing'] .intro-burj-edge { animation: intro-edge 1.05s var(--ease-out) .65s both; }
-html[data-intro='playing'] .intro-burj-edge path { animation: intro-outline .9s var(--ease-out) .65s both; }
-html[data-intro='playing'] .intro-wordmark > span { animation: intro-letter .7s var(--ease-out) both; animation-delay: calc(1.4s + var(--letter-index) * .025s); }
-html[data-intro='playing'] .intro-bottom { animation: intro-wordmark-depart var(--intro-duration) linear both; }
-@keyframes intro-wordmark-depart { 0%, 70% { opacity: 1; } 80%, 100% { opacity: 0; } }
-html[data-intro='playing'] .intro-skip { animation: copy-arrive .5s var(--ease-out) .3s both; }
-@keyframes intro-rise { from { clip-path: inset(100% 0 0); } to { clip-path: inset(0); } }
-@keyframes intro-image-arrive { from { transform: scale(1.08); } to { transform: scale(1); } }
-@keyframes intro-depart { 0%, 73% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes intro-edge { 0%,100% { opacity: 0; } 45% { opacity: .42; } }
+.intro-wordmark { display: flex; padding-left: .3em; font-family: var(--font-serif); font-size: clamp(4.6rem,7.3vw,7rem); font-weight: 400; letter-spacing: .3em; line-height: 1; }
+.intro-wordmark > span { display: block; opacity: 0; transform: translate(calc(var(--letter-offset) * 8px),16px); }
+.intro-signature { display: block; width: 64px; height: 1px; background: rgba(228,226,215,.42); transform: scaleX(0); }
+.intro-location { position: absolute; left: var(--gutter); bottom: max(40px,env(safe-area-inset-bottom)); font-size: .52rem; font-weight: 400; letter-spacing: .22em; line-height: 44px; text-transform: uppercase; color: rgba(237,233,222,.48); opacity: 0; }
+.intro-skip { position: absolute; right: var(--gutter); bottom: max(40px,env(safe-area-inset-bottom)); display: inline-flex; align-items: center; gap: 24px; min-height: 44px; padding-block: 10px; border: 0; border-bottom: 1px solid rgba(244,240,231,.24); background: transparent; color: rgba(237,233,222,.65); font-size: .54rem; letter-spacing: .18em; text-transform: uppercase; opacity: 0; }
+html[data-intro='playing'] .intro-image-mask { animation: intro-aperture-open calc(var(--intro-photoReveal) * var(--intro-tempo, 1)) var(--ease-out) calc(var(--intro-photograph) * var(--intro-tempo, 1)) both; }
+html[data-intro='playing'] .intro-image { animation: intro-image-arrive calc(var(--intro-cameraDuration) * var(--intro-tempo, 1)) var(--ease-out) calc(var(--intro-photograph) * var(--intro-tempo, 1)) both; }
+html[data-intro='playing'] .intro-trace { animation: intro-trace-arrive calc(var(--intro-structureDuration) * var(--intro-tempo, 1)) var(--ease-out) calc(var(--intro-structure) * var(--intro-tempo, 1)) both; }
+html[data-intro='playing'] .intro-aperture-guide { animation: intro-frame-hold calc(var(--intro-duration) * var(--intro-tempo, 1)) linear both; }
+html[data-intro='playing'] .intro-vignette { animation: intro-vignette-depart calc(var(--intro-duration) * var(--intro-tempo, 1)) linear both; }
+html[data-intro='playing'] .intro-signature { animation: intro-signature-arrive calc(.85s * var(--intro-tempo, 1)) var(--ease-out) calc(3.1s * var(--intro-tempo, 1)) both; }
+html[data-intro='playing'] .intro-wordmark > span { animation: intro-letter calc(var(--intro-wordmarkDuration) * var(--intro-tempo, 1)) var(--ease-out) both; animation-delay: calc((var(--intro-wordmark) + var(--letter-index) * .02s) * var(--intro-tempo, 1)); }
+html[data-intro='playing'] .intro-bottom { animation: intro-wordmark-depart calc(.3s * var(--intro-tempo, 1)) linear calc(var(--intro-wordmarkDepart) * var(--intro-tempo, 1)) both; }
+html[data-intro='playing'] .intro-skip, html[data-intro='playing'] .intro-location { animation: intro-ui-opacity .7s linear calc(.9s * var(--intro-tempo, 1)) both; }
+@keyframes intro-wordmark-depart { from { opacity: 1; } to { opacity: 0; } }
+@keyframes intro-aperture-open {
+  0% { clip-path: inset(92% calc(100% - var(--burj-x,55.3%)) 8% var(--burj-x,55.3%)); }
+  22% { clip-path: inset(12% calc(100% - var(--burj-x,55.3%) - 1px) 8% calc(var(--burj-x,55.3%) - 1px)); }
+  54%, 74% { clip-path: inset(8% calc(100% - var(--burj-x,55.3%) - var(--intro-aperture)) 8% calc(var(--burj-x,55.3%) - var(--intro-aperture))); }
+  100% { clip-path: inset(0% 0px 0% 0px); }
+}
+@keyframes intro-trace-arrive { 0% { transform: scaleY(0); opacity: 0; } 45% { transform: scaleY(1); opacity: .8; } 100% { transform: scaleY(1); opacity: 0; } }
+@keyframes intro-frame-hold { 0%,45% { opacity: 0; } 53%,67% { opacity: 1; } 74%,100% { opacity: 0; } }
+@keyframes intro-vignette-depart { 0%,65% { opacity: 1; } 83%,100% { opacity: 0; } }
+@keyframes intro-signature-arrive { to { transform: scaleX(1); } }
+@keyframes intro-image-arrive { from { transform: translateY(8px) scale(1.055); } to { transform: translateY(0) scale(1); } }
+@keyframes intro-depart { 0%, 82% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes intro-outline { to { stroke-dashoffset: 0; } }
 @keyframes intro-letter { to { transform: translate(0,0); opacity: 1; } }
+@keyframes intro-ui-opacity { from { opacity: 0; } to { opacity: 1; } }
 html[data-intro-sequence='true'] .hero-initial-image { animation: none; transform: none; }
 html[data-intro-sequence='true'] .hero-unveil { display: none; }
-html[data-intro-sequence='true'] .hero-title-enter, html[data-intro-sequence='true'] .hero-enter, html[data-intro-sequence='true'] .hero-topline { animation-duration: .7s; }
-html[data-intro-sequence='true'] .site-header { animation: intro-nav .6s var(--ease-out) both; }
+html[data-intro-sequence='true'] .hero-title-enter, html[data-intro-sequence='true'] .hero-enter, html[data-intro-sequence='true'] .hero-topline { animation-duration: calc(.58s * var(--intro-tempo, 1)); }
+html[data-intro-sequence='true'] .site-header { animation: intro-nav calc(.55s * var(--intro-tempo, 1)) var(--ease-out) both; }
+html[data-intro-sequence='true'] .hero-bottom, html[data-intro-sequence='true'] .whatsapp-dock { animation: intro-ui-opacity calc(.45s * var(--intro-tempo, 1)) linear .62s both; }
 @keyframes intro-nav { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-html[data-hero-ready='false'] .hero-title-enter, html[data-hero-ready='false'] .hero-enter, html[data-hero-ready='false'] .hero-topline, html[data-hero-ready='false'] .site-header, html[data-hero-ready='false'] .site-header .brand-mark, html[data-hero-ready='false'] .experience-hero .text-mask-inner, html[data-hero-ready='false'] .experience-hero-media { animation-play-state: paused; }
+html[data-hero-ready='false'] .hero-title-enter, html[data-hero-ready='false'] .hero-enter, html[data-hero-ready='false'] .hero-topline, html[data-hero-ready='false'] .site-header, html[data-hero-ready='false'] .site-header .brand-mark, html[data-hero-ready='false'] .experience-hero .text-mask-inner, html[data-hero-ready='false'] .experience-hero-media, html[data-hero-ready='false'] .hero-bottom, html[data-hero-ready='false'] .whatsapp-dock { animation-play-state: paused; }
 .burj-interlude .burj-interlude-image { object-position: 58% 38%; }
 .burj-interlude::after { content: 'BURJ KHALIFA'; position: absolute; right: var(--gutter); bottom: 28px; font-size: .55rem; letter-spacing: .2em; color: rgba(244,240,231,.65); }
 .route-curtain { position: fixed; inset: 0; z-index: 140; display: grid; place-items: center; pointer-events: none; background: #07100f; color: #dad7cc; }
@@ -409,17 +427,30 @@ html[data-hero-ready='false'] .hero-title-enter, html[data-hero-ready='false'] .
 .route-motif span { font-family: var(--font-serif); font-size: 1.1rem; letter-spacing: .32em; padding-left: .32em; animation: copy-arrive .35s var(--ease-out) .1s both; }
 @media (max-width: 767px) {
   .intro-image-mask, .intro-shade { height: max(760px,100svh); }
+  .intro-atmosphere { top: 0; height: max(760px,100svh); background-image: url('/images/burj-khalifa-night-mobile.webp'); background-position: 59% center; }
   .intro-image { inset: 0; background-image: url('/images/burj-khalifa-night-mobile.webp'); background-position: 59% center; }
   .hero-city-image { object-position: 59% center; }
   .intro-shade { background: linear-gradient(180deg,rgba(6,15,17,.28),rgba(6,15,17,.06) 20%,rgba(6,15,17,.42) 45%,rgba(6,15,17,.93)),linear-gradient(90deg,rgba(6,15,17,.2),transparent); }
-  .intro-bottom { bottom: max(36px,env(safe-area-inset-bottom)); align-items: flex-start; flex-direction: column; gap: 22px; }
-  .intro-wordmark { font-size: 17.5vw; letter-spacing: .24em; }
-  .intro-skip { align-self: flex-end; min-height: 44px; margin: 0; }
+  .brand-intro { --intro-aperture: 32vw; }
+  .intro-bottom { bottom: max(126px,17svh); gap: 20px; }
+  .intro-wordmark { font-size: clamp(3rem,13vw,3.6rem); letter-spacing: .3em; }
+  .intro-signature { width: 44px; }
+  .intro-location, .intro-skip { bottom: max(26px,env(safe-area-inset-bottom)); font-size: .48rem; }
   .burj-interlude .burj-interlude-image { object-position: 60% center; }
 }
-@media (max-height: 600px) and (min-width: 768px) { .intro-image-mask, .intro-shade { height: max(650px,100svh); } }
-@media (min-width: 768px) and (pointer: coarse) { .intro-image { inset: 0; } }
+@media (max-height: 600px) and (min-width: 768px) { .intro-image-mask, .intro-shade { height: max(650px,100svh); } .intro-atmosphere { height: calc(max(650px,100svh) + 48px); } }
+@media (min-width: 768px) and (pointer: coarse) { .intro-image { inset: 0; } .intro-atmosphere { top: 0; height: clamp(740px,100svh,1200px); } }
+/* A short photographic greeting respects reduced motion: no camera or canvas. */
+html[data-intro-motion='reduced'] .intro-atmosphere, html[data-intro-motion='reduced'] .intro-lights, html[data-intro-motion='reduced'] .intro-trace, html[data-intro-motion='reduced'] .intro-aperture-guide, html[data-intro-motion='reduced'] .intro-vignette { display: none; }
+html[data-intro-motion='reduced'][data-intro='playing'] .brand-intro { animation: intro-reduced-depart var(--intro-reducedDuration) linear both !important; }
+html[data-intro-motion='reduced'] .intro-image { animation: none !important; transform: none; }
+html[data-intro-motion='reduced'] .intro-image-mask { animation: intro-ui-opacity .35s linear both !important; clip-path: none; }
+html[data-intro-motion='reduced'] .intro-bottom { animation: none !important; opacity: 1; }
+html[data-intro-motion='reduced'] .intro-wordmark > span { animation: intro-ui-opacity .3s linear .2s both !important; transform: none; }
+html[data-intro-motion='reduced'] .intro-skip, html[data-intro-motion='reduced'] .intro-location { animation: none !important; opacity: 1; }
+html[data-intro-motion='reduced'] .intro-signature { animation: none !important; transform: none; }
+@keyframes intro-reduced-depart { 0%, 64% { opacity: 1; } 100% { opacity: 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .brand-intro, html[data-intro] .brand-intro, .route-curtain { display: none !important; }
+  .route-curtain { display: none !important; }
   html[data-hero-ready='false'] .hero-title-enter, html[data-hero-ready='false'] .hero-enter, html[data-hero-ready='false'] .site-header { animation-play-state: running; }
 }
